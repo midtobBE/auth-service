@@ -6,18 +6,17 @@ import com.example.AuthService.dataTransferObjects.LoginDTO;
 import com.example.AuthService.dataTransferObjects.RegisterDTO;
 import com.example.AuthService.models.User;
 import com.example.AuthService.responses.auth.AuthResponse;
+import com.example.AuthService.responses.auth.LoginResponse;
 
 public interface IAuthService {
-    AuthResponse register(RegisterDTO registerDTO, String userAgent);
-    AuthResponse login(LoginDTO loginDTO, String userAgent);
+    LoginResponse register(RegisterDTO registerDTO, String userAgent);
+    LoginResponse login(LoginDTO loginDTO, String userAgent);
     void logout();
-    AuthResponse changePassword(ChangePasswordRequest passwordRequest);
+    LoginResponse changePassword(ChangePasswordRequest passwordRequest);
     void deleteUser(Long userId);
     User authenticationToken(String token);
-    AuthResponse refreshToken(String refreshToken);
+    LoginResponse refreshToken(String refreshToken);
 
 
     User getCurrentUser();
-    User getUserByUserId(Long userId);
-    User getUserByUserName(String userName);
 }

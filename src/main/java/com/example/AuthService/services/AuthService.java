@@ -12,10 +12,10 @@ import com.example.AuthService.models.User;
 import com.example.AuthService.repositories.RoleRepository;
 import com.example.AuthService.repositories.UserRepository;
 import com.example.AuthService.responses.auth.AuthResponse;
+import com.example.AuthService.responses.auth.LoginResponse;
 import com.example.AuthService.responses.auth.TokenResponse;
 import com.example.AuthService.validations.ValidationUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,11 +39,9 @@ public class AuthService implements IAuthService {
     private final JwtTokenUtils jwtTokenUtils;
     private final ITokenService tokenService;
     private final ValidationUtils validationUtils;
-
-
     @Transactional
     @Override
-    public AuthResponse register(RegisterDTO registerDTO, String userAgent) {
+    public LoginResponse register(RegisterDTO registerDTO, String userAgent) {
         if (userRepository.existByUserName(registerDTO.getEmail())){
             throw new InvalidParamException("Email already exists!");
         }
@@ -61,14 +59,14 @@ public class AuthService implements IAuthService {
         userRepository.save(newUser);
         String newToken = jwtTokenUtils.generateToken(newUser);
         TokenResponse tokenResponse = tokenService.addToken(newUser,newToken,userAgent);
-        return AuthResponse.builder()
+        return LoginResponse.builder()
                 .userId(newUser.getUserId())
                 .roles(newUser.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                 .token(tokenResponse)
                 .build();
     }
     @Override
-    public AuthResponse login(LoginDTO loginDTO, String userAgent) {
+    public LoginResponse login(LoginDTO loginDTO, String userAgent) {
         Optional<User> optionalUser = Optional.empty();
         String subject = "";
         if (!validationUtils.isValidEmail(loginDTO.getUserName()) && loginDTO.getUserName() != null && !loginDTO.getUserName().isEmpty()){
@@ -94,7 +92,7 @@ public class AuthService implements IAuthService {
         System.out.println(existingUser.getUsername());
         String newToken = jwtTokenUtils.generateToken(existingUser);
         TokenResponse tokenResponse = tokenService.addToken(existingUser,newToken,userAgent);
-        return AuthResponse.builder()
+        return LoginResponse.builder()
                 .userId(existingUser.getUserId())
                 .roles(existingUser.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                 .token(tokenResponse)
@@ -108,7 +106,7 @@ public class AuthService implements IAuthService {
         tokenService.deleteToken(existingUser);
     }
     @Override
-    public AuthResponse changePassword(ChangePasswordRequest passwordRequest) {
+    public LoginResponse changePassword(ChangePasswordRequest passwordRequest) {
         if (!passwordRequest.getCurrentPassword().equals(passwordRequest.getNewPassword())){
             throw new InvalidParamException("New password must be different from the current password!");
         }
@@ -123,7 +121,7 @@ public class AuthService implements IAuthService {
         tokenService.deleteToken(existingUser);
         String newToken = jwtTokenUtils.generateToken(existingUser);
         TokenResponse tokenResponse = tokenService.addToken(existingUser,newToken,null);
-        return AuthResponse.builder()
+        return LoginResponse.builder()
                 .userId(existingUser.getUserId())
                 .roles(existingUser.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                 .token(tokenResponse)
@@ -137,7 +135,6 @@ public class AuthService implements IAuthService {
     }
     @Override
     public User authenticationToken(String token) {
-
         tokenService.validateToken(token);
         String userName = jwtTokenUtils.extractUserName(token);
         User existingUser = null;
@@ -149,23 +146,21 @@ public class AuthService implements IAuthService {
             existingUser = userRepository.findByEmail(userName)
                     .orElseThrow(()->new DataNotFoundException("Cannot found user with email " + userName));
         }
-        if (!existingUser.isActive()){
+        if (existingUser == null || !existingUser.isActive()){
             throw new InvalidParamException("User is not active");
         }
-        System.out.println("hello!!");
         return existingUser;
     }
     @Override
-    public AuthResponse refreshToken(String refreshToken) {
+    public LoginResponse refreshToken(String refreshToken) {
         String userName = getCurrentUser().getUsername();
         User existingUser = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new DataNotFoundException(""));
-
         if (!existingUser.isActive()) {
             throw new InvalidParamException("User is not active");
         }
         TokenResponse tokenResponse = tokenService.refreshToken(existingUser,refreshToken);
-        return AuthResponse.builder()
+        return LoginResponse.builder()
                 .userId(existingUser.getUserId())
                 .roles(existingUser.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                 .token(tokenResponse)
@@ -179,19 +174,5 @@ public class AuthService implements IAuthService {
         } else {
             return null;
         }
-    }
-    @Override
-    public User getUserByUserId(Long userId){
-        return userRepository.findById(userId)
-                .orElseThrow(()->new DataNotFoundException(""));
-    }
-    @Override
-    public User getUserByUserName(String userName) {
-        if (validationUtils.isValidEmail(userName)){
-            return userRepository.findByEmail(userName)
-                    .orElseThrow(()->new DataNotFoundException(""));
-        }
-        return userRepository.findByUserName(userName)
-                .orElseThrow(()->new DataNotFoundException(""));
     }
 }

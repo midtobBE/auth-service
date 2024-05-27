@@ -40,7 +40,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         try {
-//            if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
                 User userDetails = authService.authenticationToken(token);
                 Authentication authentication =
@@ -49,8 +48,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                                 userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 filterChain.doFilter(request, response);
-                return;
-//            }
         } catch (Exception e){
             if (isBypassToken(request)) {
                 filterChain.doFilter(request, response);
@@ -64,25 +61,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String requestPath = request.getServletPath();
         String requestMethod = request.getMethod();
         final List<Pair<String, String>> bypassRoutes  = Arrays.asList(
-                Pair.of(String.format("/%s/answer",apiPrefix),"GET"),
-                Pair.of(String.format("/%s/question",apiPrefix),"GET"),
-                Pair.of(String.format("/%s/category",apiPrefix),"GET"),
-
-
-                Pair.of(String.format("/%s/post",apiPrefix),"GET"),
-                Pair.of(String.format("/%s/comment",apiPrefix),"GET"),
-                Pair.of(String.format("/%s/replyComment",apiPrefix),"GET"),
-                Pair.of(String.format("/%s/like",apiPrefix),"GET"),
-
-
-                Pair.of(String.format("/%s/user/profile/",apiPrefix),"GET"),
-
+                Pair.of(String.format("/%s/auth/validateToken",apiPrefix),"POST"),
                 Pair.of(String.format("/%s/auth/login",apiPrefix),"POST"),
-                Pair.of(String.format("/%s/auth/register",apiPrefix),"POST"),
-
-                Pair.of("/swagger-ui/","GET"),
-                Pair.of("/api-docs","GET"),
-                Pair.of("/api-docs/","GET")
+                Pair.of(String.format("/%s/auth/register",apiPrefix),"POST")
         );
         for(Pair<String,String> bypassToken:bypassRoutes){
             if (requestPath.contains(bypassToken.getFirst())

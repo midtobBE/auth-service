@@ -3,13 +3,15 @@ package com.example.AuthService.controllers;
 import com.example.AuthService.dataTransferObjects.ChangePasswordRequest;
 import com.example.AuthService.dataTransferObjects.LoginDTO;
 import com.example.AuthService.dataTransferObjects.RegisterDTO;
+import com.example.AuthService.models.Role;
+import com.example.AuthService.models.User;
 import com.example.AuthService.responses.ResponseObject;
 import com.example.AuthService.responses.auth.AuthResponse;
+import com.example.AuthService.responses.auth.LoginResponse;
 import com.example.AuthService.services.IAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
 public class AuthController {
     private final IAuthService authService;
     @PostMapping("/register")
-    public ResponseEntity<?> register(
+    public ResponseEntity<?> hanldeRegister(
             @ModelAttribute RegisterDTO registerDTO,
             HttpServletRequest request,
             BindingResult result
@@ -39,12 +41,12 @@ public class AuthController {
             return ResponseEntity.badRequest().body(ResponseObject.error(HttpStatus.BAD_REQUEST, errorMessages));
         }
         String userAgent = request.getHeader("User-Agent");
-        AuthResponse authResponse = authService.register(registerDTO,userAgent);
-        return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK, "Register successfully",authResponse));
+        LoginResponse loginResponse = authService.register(registerDTO,userAgent);
+        return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK, "Register successfully", loginResponse));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(
+    public ResponseEntity<?> handleLogin(
             @Valid @RequestBody LoginDTO loginDTO,
             HttpServletRequest request,
             BindingResult result
@@ -57,10 +59,21 @@ public class AuthController {
             return ResponseEntity.badRequest().body(ResponseObject.error(HttpStatus.BAD_REQUEST, errorMessages));
         }
         String userAgent = request.getHeader("User-Agent");
-        AuthResponse authResponse = authService.login(loginDTO, userAgent);
-        return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK, "Login successfully", authResponse));
+        LoginResponse loginResponse = authService.login(loginDTO, userAgent);
+        return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK, "Login successfully", loginResponse));
     }
-
+    @PostMapping("/validateToken")
+    public ResponseEntity<?> hanldeValidateToken(
+            @RequestHeader("Authorization") String token) {
+        System.out.println("token " + token);
+        User authResponse = authService.authenticationToken(token);
+        return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK,
+                "",
+                AuthResponse.builder()
+                        .userId(authResponse.getUserId())
+                        .roles(authResponse.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
+                        .build()));
+    }
     @PostMapping("/logout")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> logout() {
@@ -70,17 +83,16 @@ public class AuthController {
     @PostMapping("/refresh-token")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String refreshTokenHeader) {
-        AuthResponse authResponse = authService.refreshToken(refreshTokenHeader);
-        return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK, "Refresh Token successfully", authResponse));
+        LoginResponse loginResponse = authService.refreshToken(refreshTokenHeader);
+        return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK, "Refresh Token successfully", loginResponse));
     }
-
     @PostMapping("/change-password")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> changePassword(
             @RequestBody ChangePasswordRequest passwordRequest
     ) {
-        AuthResponse authResponse = authService.changePassword(passwordRequest);
-        return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK, "Change password successful!", authResponse));
+        LoginResponse loginResponse = authService.changePassword(passwordRequest);
+        return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK, "Change password successful!", loginResponse));
     }
 
     @DeleteMapping("/delete-user")

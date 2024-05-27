@@ -8,10 +8,10 @@ spring:
   application:
     name: Auth-Service
   datasource:
-    url: jdbc:mysql://localhost:3306/study_with_me?user=root&password=Hop2005@&connectionProperties=serverName=HappyTask;
+    url: jdbc:mysql://monorail.proxy.rlwy.net:56745/auth_db?user=root
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: Hop2005@
+    password: mNvmHFuvykgpBQNzlxFiVivFVwmRGTGP
 api:
   prefix: api/v1
 jwt:
