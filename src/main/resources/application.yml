@@ -3,7 +3,7 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: https://discovery-server-production.up.railway.app/eureka
 spring:
   application:
     name: Auth-Service
