@@ -63,15 +63,15 @@ public class AuthController {
         return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK, "Login successfully", loginResponse));
     }
     @PostMapping("/validateToken")
-    public ResponseEntity<?> hanldeValidateToken(
-            @RequestHeader("Authorization") String token) {
-        System.out.println("token " + token);
-        User authResponse = authService.authenticationToken(token);
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> hanldeValidateToken(){
+        System.out.println("Hi");
+        User userResponse = authService.getCurrentUser();
         return ResponseEntity.ok(ResponseObject.success(HttpStatus.OK,
                 "",
                 AuthResponse.builder()
-                        .userId(authResponse.getUserId())
-                        .roles(authResponse.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
+                        .userId(userResponse.getUserId())
+                        .roles(userResponse.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                         .build()));
     }
     @PostMapping("/logout")

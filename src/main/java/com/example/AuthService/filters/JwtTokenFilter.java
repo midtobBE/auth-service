@@ -61,7 +61,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String requestPath = request.getServletPath();
         String requestMethod = request.getMethod();
         final List<Pair<String, String>> bypassRoutes  = Arrays.asList(
-                Pair.of(String.format("/%s/auth/validateToken",apiPrefix),"POST"),
                 Pair.of(String.format("/%s/auth/login",apiPrefix),"POST"),
                 Pair.of(String.format("/%s/auth/register",apiPrefix),"POST")
         );
