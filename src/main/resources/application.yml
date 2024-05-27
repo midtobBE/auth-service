@@ -1,0 +1,20 @@
+server:
+  port: 9001
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+spring:
+  application:
+    name: Auth-Service
+  datasource:
+    url: jdbc:mysql://localhost:3306/study_with_me?user=root&password=Hop2005@&connectionProperties=serverName=HappyTask;
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: Hop2005@
+api:
+  prefix: api/v1
+jwt:
+  expiration: 2592000
+  expiration-refresh-token: 5184000
+  secretKey: cONZe0ovkAXrizdcbS69hVcQDxmMBLqkoODh846Opdk=
