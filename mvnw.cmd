@@ -23,7 +23,7 @@
 @REM
 @REM Optional ENV vars
 @REM   MVNW_REPOURL - repo url base for downloading maven distribution
-@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+@REM   MVNW_USERNAME/MVNW_PASSWORD - userEntity and password for downloading maven
 @REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
 @REM ----------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@
 @SET __MVNW_ERROR__=
 @SET __MVNW_PSMODULEP_SAVE=%PSModulePath%
 @SET PSModulePath=
-@FOR /F "usebackq tokens=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
+@FOR /F "usebackq tokenEntities=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
   IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
 )
 @SET PSModulePath=%__MVNW_PSMODULEP_SAVE%

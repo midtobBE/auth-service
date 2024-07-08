@@ -1,19 +1,19 @@
 server:
-  port: 9001
-eureka:
-  client:
-    service-url:
-      defaultZone: https://discovery-server-production.up.railway.app/eureka
+  port: ${PORT:9001}
+api:
+  prefix: api/v1
 spring:
   application:
     name: Auth-Service
   datasource:
-    url: jdbc:mysql://monorail.proxy.rlwy.net:56745/auth_db?user=root
+    url: ${DATABASE_URL:jdbc:mysql://midtob-service-nguyenviet3057.f.aivencloud.com:28776/auth_db}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: mNvmHFuvykgpBQNzlxFiVivFVwmRGTGP
-api:
-  prefix: api/v1
+    username: ${DATABASE_USERNAME:avnadmin}
+    password: ${DATABASE_PASSWORD:AVNS_ctJSYzosDSyudfsXdza}
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 jwt:
   expiration: 2592000
   expiration-refresh-token: 5184000

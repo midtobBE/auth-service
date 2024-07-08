@@ -1,7 +1,7 @@
 package com.example.AuthService.components;
 
+import com.example.AuthService.Persistence.Models.UserEntity;
 import com.example.AuthService.exceptions.TokenExpiredException;
-import com.example.AuthService.models.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
@@ -22,13 +22,13 @@ public class JwtTokenUtils {
     private int expiration;
     @Value("${jwt.secretKey}")
     private String secretKey;
-    public String generateToken(User user){
+    public String generateToken(UserEntity userEntity){
         Map<String,Object> claims = new HashMap<>();
-        claims.put("userName",user.getUsername());
+        claims.put("userName", userEntity.getUsername());
         try {
             String token = Jwts.builder()
                     .setClaims(claims)
-                    .setSubject(user.getUsername())
+                    .setSubject(userEntity.getUsername())
                     .setExpiration(new Date(System.currentTimeMillis()+expiration*1000000L))
                     .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                     .compact();

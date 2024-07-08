@@ -1,5 +1,5 @@
 package com.example.AuthService.exceptions;
-import com.example.AuthService.responses.ResponseObject;
+import com.example.AuthService.Presentation.Responses.ResponseObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

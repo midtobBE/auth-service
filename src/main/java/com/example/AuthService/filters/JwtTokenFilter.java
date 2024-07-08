@@ -1,8 +1,8 @@
 package com.example.AuthService.filters;
 
+import com.example.AuthService.Persistence.Models.UserEntity;
 import com.example.AuthService.exceptions.AccessDeniedException;
-import com.example.AuthService.models.User;
-import com.example.AuthService.services.IAuthService;
+import com.example.AuthService.Presentation.Services.Auth.IAuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -34,18 +34,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        if (request.getServletPath().contains("/ws")) {
-            filterChain.doFilter(request,response);
-            return;
-        }
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         try {
                 String token = authHeader.substring(7);
-                User userDetails = authService.authenticationToken(token);
+                UserEntity userEntityDetails = authService.authenticationToken(token);
                 Authentication authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails,
+                        new UsernamePasswordAuthenticationToken(userEntityDetails,
                                 null,
-                                userDetails.getAuthorities());
+                                userEntityDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 filterChain.doFilter(request, response);
         } catch (Exception e){

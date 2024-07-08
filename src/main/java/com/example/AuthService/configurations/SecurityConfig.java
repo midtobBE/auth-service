@@ -1,7 +1,7 @@
 package com.example.AuthService.configurations;
 
-import com.example.AuthService.models.User;
-import com.example.AuthService.repositories.UserRepository;
+import com.example.AuthService.Persistence.Models.UserEntity;
+import com.example.AuthService.Persistence.Repositories.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,11 +23,11 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(){
         return subject -> {
-            Optional<User> userByUserName = userRepository.findByUserName(subject);
+            Optional<UserEntity> userByUserName = userRepository.findByUserName(subject);
             if (userByUserName.isPresent()){
                 return  userByUserName.get();
             }
-            Optional<User> userByEmail = userRepository.findByEmail(subject);
+            Optional<UserEntity> userByEmail = userRepository.findByEmail(subject);
             if (userByEmail.isPresent()) {
                 return userByEmail.get();
             }
